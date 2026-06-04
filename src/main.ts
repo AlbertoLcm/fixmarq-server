@@ -23,7 +23,7 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({ origin: "*" })
+  app.enableCors({ origin: 'https://fixmarq-flow.vercel.app' })
 
   await app.listen(process.env.PORT ?? 3000);
 }
