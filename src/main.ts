@@ -24,7 +24,7 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: ['https://fixmarq-flow.vercel.app'],
+    origin: ['https://fixmarq-flow.vercel.app', 'http://192.168.100.46:5173'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });

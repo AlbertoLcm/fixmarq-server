@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, Query } fr
 import { BudgestsService } from './budgests.service';
 import { CreateBudgestDto } from './dto/create-budgest.dto';
 import { UpdateBudgestDto } from './dto/update-budgest.dto';
+import { UpdateBudgetItemsDto } from './dto/update-budget-items.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { FindAllBudgetsDto } from './dto/find-all-budgest.dto';
 

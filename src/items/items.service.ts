@@ -5,9 +5,12 @@ import { PrismaService } from '../prisma.service';
 @Injectable()
 export class ItemsService {
   constructor(private readonly prismaService: PrismaService) { }
+
   async create(createItemDto: CreateItemDto) {
     const { budget_id, description, quantity, unit, price } = createItemDto;
+
     return this.prismaService.$transaction(async (prisma) => {
+
       const budget = await prisma.budgets.findUnique({
         where: { id: budget_id },
       });
@@ -23,31 +26,7 @@ export class ItemsService {
           price: price ?? 0,
         },
       });
-      // Recalcular total_amount del presupuesto
-      const items = await prisma.budget_items.findMany({
-        where: { budget_id },
-      });
-      const newTotalAmount = items.reduce((sum, item) => {
-        const qty = Number(item.quantity) || 0;
-        const prc = Number(item.price) || 0;
-        return sum + (qty * prc);
-      }, 0);
-      const paidAmount = Number(budget.paid_amount);
-      let status = budget.status;
-      if (paidAmount >= newTotalAmount) {
-        status = 'paid';
-      } else if (paidAmount > 0) {
-        status = 'ongoing';
-      } else {
-        status = 'pending';
-      }
-      await prisma.budgets.update({
-        where: { id: budget_id },
-        data: {
-          total_amount: newTotalAmount,
-          status,
-        },
-      });
+      // El trigger de la DB recalcula total_amount y status automáticamente
       return {
         ...item,
         quantity: Number(item.quantity),
@@ -79,6 +58,7 @@ export class ItemsService {
       total: Number(item.total),
     };
   }
+
   async update(id: string, updateItemDto: UpdateItemDto) {
     return this.prismaService.$transaction(async (prisma) => {
       const item = await prisma.budget_items.findUnique({
@@ -97,36 +77,7 @@ export class ItemsService {
           price: updateItemDto.price,
         },
       });
-      // Recalcular total_amount del presupuesto
-      const items = await prisma.budget_items.findMany({
-        where: { budget_id: budgetId },
-      });
-      const newTotalAmount = items.reduce((sum, item) => {
-        const qty = Number(item.quantity) || 0;
-        const prc = Number(item.price) || 0;
-        return sum + (qty * prc);
-      }, 0);
-      const budget = await prisma.budgets.findUnique({
-        where: { id: budgetId },
-      });
-      if (budget) {
-        const paidAmount = Number(budget.paid_amount);
-        let status = budget.status;
-        if (paidAmount >= newTotalAmount) {
-          status = 'paid';
-        } else if (paidAmount > 0) {
-          status = 'ongoing';
-        } else {
-          status = 'pending';
-        }
-        await prisma.budgets.update({
-          where: { id: budgetId },
-          data: {
-            total_amount: newTotalAmount,
-            status,
-          },
-        });
-      }
+      // El trigger de la DB recalcula total_amount y status automáticamente
       return {
         ...updatedItem,
         quantity: Number(updatedItem.quantity),
@@ -147,36 +98,7 @@ export class ItemsService {
       await prisma.budget_items.delete({
         where: { id },
       });
-      // Recalcular total_amount del presupuesto
-      const items = await prisma.budget_items.findMany({
-        where: { budget_id: budgetId },
-      });
-      const newTotalAmount = items.reduce((sum, item) => {
-        const qty = Number(item.quantity) || 0;
-        const prc = Number(item.price) || 0;
-        return sum + (qty * prc);
-      }, 0);
-      const budget = await prisma.budgets.findUnique({
-        where: { id: budgetId },
-      });
-      if (budget) {
-        const paidAmount = Number(budget.paid_amount);
-        let status = budget.status;
-        if (paidAmount >= newTotalAmount) {
-          status = 'paid';
-        } else if (paidAmount > 0) {
-          status = 'ongoing';
-        } else {
-          status = 'pending';
-        }
-        await prisma.budgets.update({
-          where: { id: budgetId },
-          data: {
-            total_amount: newTotalAmount,
-            status,
-          },
-        });
-      }
+      // El trigger de la DB recalcula total_amount y status automáticamente
       return {
         ...item,
         quantity: Number(item.quantity),
